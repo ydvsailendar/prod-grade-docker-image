@@ -8,8 +8,10 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  COMMIT_SHA: ${{ github.sha }}
-  COMMIT_TAG: ${{ github.sha::8 }} # Get first 8 characters of commit SHA
+  COMMIT_SHA: ${{ github.sha }} # Full commit SHA
+  # Using shell command to extract first 8 characters of commit SHA
+  COMMIT_TAG: ${{ github.sha }} # We'll handle this in the pipeline
+
   SLACK_WEBHOOK_URL_GITHUB: ${{ secrets.SLACK_WEBHOOK_GITHUB }}
   BASE_IMAGE: alpine:latest
 
@@ -96,6 +98,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Extract First 8 Characters of Commit SHA ---
+      - name: Set COMMIT_TAG from commit SHA
+        run: echo "COMMIT_TAG=$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_ENV
 
       # --- Docker Build ---
       - name: Build Docker Image
