@@ -25,16 +25,16 @@ jobs:
 
       # --- SAST: Static Application Security Testing (CodeQL) ---
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v3.28.11
         with:
           languages: bash
 
       - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v3.28.11
 
       # --- SCA: Software Composition Analysis (Dependency Scanning) ---
       - name: Scan Dependencies for Vulnerabilities (Trivy SCA)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: fs
           exit-code: 1
@@ -50,7 +50,7 @@ jobs:
 
       # --- Lint Dockerfile (Hadolint) ---
       - name: Lint Dockerfile
-        uses: hadolint/hadolint-action@v3
+        uses: hadolint/hadolint-action@v3.0.0
         with:
           dockerfile: Dockerfile
 
@@ -64,7 +64,7 @@ jobs:
 
       # --- Scan Base Image for Vulnerabilities (Trivy) ---
       - name: Scan Base Image for Vulnerabilities (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: image
           image: ${{ env.BASE_IMAGE }}
@@ -113,7 +113,7 @@ jobs:
 
       # --- Post-Build Security Scans ---
       - name: Scan Docker Image for Vulnerabilities (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: image
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
@@ -122,7 +122,7 @@ jobs:
 
       # --- Install Cosign ---
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@v3.8.1
 
       # --- Image Signing ---
       - name: Sign Docker Image (Cosign)
