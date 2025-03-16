@@ -8,10 +8,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  COMMIT_SHA: ${{ github.sha }} # Full commit SHA
-  # Using shell command to extract first 8 characters of commit SHA
-  COMMIT_TAG: ${{ github.sha }} # We'll handle this in the pipeline
-
   SLACK_WEBHOOK_URL_GITHUB: ${{ secrets.SLACK_WEBHOOK_GITHUB }}
   BASE_IMAGE: alpine:latest
 
@@ -29,17 +25,20 @@ jobs:
 
       # --- SAST: Static Application Security Testing (CodeQL) ---
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: bash
 
       - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
       # --- SCA: Software Composition Analysis (Dependency Scanning) ---
       - name: Scan Dependencies for Vulnerabilities (Trivy SCA)
-        run: |
-          trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+        uses: aquasecurity/trivy-action@v0.4.0
+        with:
+          scan-type: fs
+          exit-code: 1
+          severity: HIGH,CRITICAL
 
       # --- Scan for hardcoded secrets (GitLeaks) ---
       - name: Scan for hardcoded secrets
@@ -51,22 +50,26 @@ jobs:
 
       # --- Lint Dockerfile (Hadolint) ---
       - name: Lint Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3
         with:
           dockerfile: Dockerfile
 
       # --- Generate SBOM (Syft) ---
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0.14.3
+        uses: anchore/sbom-action@v0
         with:
           path: .
           format: "spdx-json"
           output-file: "sbom.spdx.json"
 
       # --- Scan Base Image for Vulnerabilities (Trivy) ---
-      - name: Scan Base Image for Vulnerabilities
-        run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ env.BASE_IMAGE }}
+      - name: Scan Base Image for Vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@v0
+        with:
+          scan-type: image
+          image: ${{ env.BASE_IMAGE }}
+          exit-code: 1
+          severity: HIGH,CRITICAL
 
       # --- Notification for Failure ---
       - name: Send Slack notification on failure (GitHub Workflow channel)
@@ -110,8 +113,16 @@ jobs:
 
       # --- Post-Build Security Scans ---
       - name: Scan Docker Image for Vulnerabilities (Trivy)
-        run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
+        uses: aquasecurity/trivy-action@v0
+        with:
+          scan-type: image
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
+          exit-code: 1
+          severity: HIGH,CRITICAL
+
+      # --- Install Cosign ---
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
 
       # --- Image Signing ---
       - name: Sign Docker Image (Cosign)
