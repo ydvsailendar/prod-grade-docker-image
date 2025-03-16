@@ -34,7 +34,7 @@ jobs:
 
       # --- SCA: Software Composition Analysis (Dependency Scanning) ---
       - name: Scan Dependencies for Vulnerabilities (Trivy SCA)
-        uses: aquasecurity/trivy-action@v0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: fs
           exit-code: 1
@@ -64,7 +64,7 @@ jobs:
 
       # --- Scan Base Image for Vulnerabilities (Trivy) ---
       - name: Scan Base Image for Vulnerabilities (Trivy)
-        uses: aquasecurity/trivy-action@v0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: image
           image: ${{ env.BASE_IMAGE }}
@@ -113,7 +113,7 @@ jobs:
 
       # --- Post-Build Security Scans ---
       - name: Scan Docker Image for Vulnerabilities (Trivy)
-        uses: aquasecurity/trivy-action@v0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: image
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
