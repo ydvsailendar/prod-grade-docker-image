@@ -31,3 +31,11 @@ docker run --name checker -d checker:v1.0.0
 ### Slack
 
 [app and webhooks](https://api.slack.com/quickstart)
+
+### Cosign
+
+[install](https://docs.sigstore.dev/cosign/system_config/installation/)
+
+```bash
+cosign verify --certificate-identity "<certificate_identity>" <image_with_tag> --certificate-oidc-issuer-regexp "<issuer>"
+```
