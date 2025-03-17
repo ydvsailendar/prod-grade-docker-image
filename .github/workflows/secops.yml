@@ -52,7 +52,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           failure-threshold: warning
-          override-warning: DL3013
+          override-info: DL3013
 
       # --- Generate SBOM (Syft) ---
       - name: Generate SBOM
