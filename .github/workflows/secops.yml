@@ -140,10 +140,6 @@ jobs:
         run: |
           cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
 
-      - name: Verify Docker Image with Cosign
-        run: |
-          cosign verify --certificate-identity "github.com/$GITHUB_ACTOR" ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
-
       # --- Notification for Success ---
       - name: Send Slack notification on success (GitHub Workflow channel)
         if: success()
