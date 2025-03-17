@@ -1,17 +1,29 @@
-# Use a minimal base image (Alpine)
-FROM alpine:latest
+# Use a minimal, non-root base image for security
+FROM python:3.11-alpine
 
-# Install curl to make HTTP requests
-RUN apk --no-cache add curl jq
+# Create a non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Create a directory for your app
+# Set working directory
 WORKDIR /app
 
-# Copy your script into the container
-COPY checker.sh /app/checker.sh
+# Copy requirements and install dependencies as a non-root user
+COPY requirements.txt .
 
-# Make the script executable
-RUN chmod +x /app/checker.sh
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Set the default command to run your script continuously
-CMD ["/bin/sh", "-c", "/app/checker.sh"]
+# Copy application files
+COPY . .
+
+# Set permissions for the non-root user
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose the port
+EXPOSE 4000
+
+# Use a more secure command to run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:4000", "app:app"]
