@@ -9,7 +9,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   SLACK_WEBHOOK_URL_GITHUB: ${{ secrets.SLACK_WEBHOOK_URL_GITHUB }}
-  BASE_IMAGE: alpine:latest
+  BASE_IMAGE: python:3.11-alpine
+  GIT_REF: ${{ github.ref }}
 
 jobs:
   security-checks:
@@ -76,7 +77,7 @@ jobs:
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' --data \
-          "{\"text\":\":x: Security checks failed in CI/CD pipeline for ${{ env.GITHUB_REPOSITORY }} on branch ${{ github.ref }}\"}" \
+          "{\"text\":\":x: Security checks failed in CI/CD pipeline for ${{ env.GITHUB_REPOSITORY }} on branch ${{ env.GIT_REF }}\"}" \
           ${{ env.SLACK_WEBHOOK_URL_GITHUB }}
           exit 1
 
@@ -145,13 +146,13 @@ jobs:
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' --data \
-          "{\"text\":\":white_check_mark: Docker image built, scanned, signed, and pushed successfully for ${{ env.GITHUB_REPOSITORY }} on branch ${{ github.ref }}. Image is secure!\"}" \
+          "{\"text\":\":white_check_mark: Docker image built, scanned, signed, and pushed successfully for ${{ env.GITHUB_REPOSITORY }} on branch ${{ env.GIT_REF }}. Image is secure!\"}" \
           ${{ env.SLACK_WEBHOOK_URL_GITHUB }}
 
       - name: Send Slack notification on failure (GitHub Workflow channel)
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' --data \
-          "{\"text\":\":x: Security checks failed in CI/CD pipeline for ${{ env.GITHUB_REPOSITORY }} on branch ${{ github.ref }}\"}" \
+          "{\"text\":\":x: Security checks failed in CI/CD pipeline for ${{ env.GITHUB_REPOSITORY }} on branch ${{ env.GIT_REF }}\"}" \
           ${{ env.SLACK_WEBHOOK_URL_GITHUB }}
           exit 1
