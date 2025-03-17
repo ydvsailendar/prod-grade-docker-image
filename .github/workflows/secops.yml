@@ -27,7 +27,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3.28.11
         with:
-          languages: bash
+          languages: python
 
       - name: Run CodeQL Analysis
         uses: github/codeql-action/analyze@v3.28.11
