@@ -124,15 +124,21 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.8.1
 
-      # --- Image Signing ---
-      - name: Sign Docker Image (Cosign)
-        run: |
-          cosign sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
-
       # --- Push Image ---
       - name: Push Docker Image to GitHub Container Registry
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
+
+      # Get Digest
+      - name: Get image digest
+        run: |
+          IMAGE_DIGEST=$(docker inspect --format '{{index .RepoDigests 0}}' ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }})
+          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
+
+      # --- Image Signing ---
+      - name: Sign Docker Image (Cosign)
+        run: |
+          cosign sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
 
       # --- Notification for Success ---
       - name: Send Slack notification on success (GitHub Workflow channel)
