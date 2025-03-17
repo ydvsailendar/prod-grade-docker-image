@@ -138,7 +138,7 @@ jobs:
       # --- Image Signing ---
       - name: Sign Docker Image (Cosign)
         run: |
-          cosign sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
+          cosign sign --skip-confirmation ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
 
       # --- Notification for Success ---
       - name: Send Slack notification on success (GitHub Workflow channel)
