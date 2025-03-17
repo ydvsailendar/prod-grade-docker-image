@@ -8,7 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  SLACK_WEBHOOK_URL_GITHUB: ${{ secrets.SLACK_WEBHOOK_GITHUB }}
+  SLACK_WEBHOOK_URL_GITHUB: ${{ secrets.SLACK_WEBHOOK_URL_GITHUB }}
   BASE_IMAGE: alpine:latest
 
 jobs:
@@ -67,7 +67,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: image
-          image: ${{ env.BASE_IMAGE }}
+          image-ref: ${{ env.BASE_IMAGE }}
           exit-code: 1
           severity: HIGH,CRITICAL
 
@@ -116,7 +116,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: image
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
           exit-code: 1
           severity: HIGH,CRITICAL
 
